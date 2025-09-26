@@ -1,8 +1,9 @@
 package io.hypersistence.utils.hibernate.type.json.configuration;
 
-import com.fasterxml.jackson.core.Version;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
+import tools.jackson.core.Version;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.module.SimpleModule;
 import io.hypersistence.utils.hibernate.type.json.internal.JsonBinaryJdbcTypeDescriptor;
 import io.hypersistence.utils.hibernate.type.json.internal.JsonJavaTypeDescriptor;
 import io.hypersistence.utils.hibernate.type.util.ObjectMapperWrapper;
@@ -37,11 +38,15 @@ public class PostgreSQLJsonBinaryTypeProgrammaticConfigurationSupplierTest exten
 
     @Override
     protected void additionalProperties(Properties properties) {
-        ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
-        objectMapper.setTimeZone(TimeZone.getTimeZone("GMT"));
-        SimpleModule simpleModule = new SimpleModule("SimpleModule", new Version(1, 0, 0, null, null, null));
-        simpleModule.addSerializer(new MoneySerializer());
-        objectMapper.registerModule(simpleModule);
+
+
+
+        ObjectMapper objectMapper = JsonMapper.builder()
+            .defaultTimeZone(TimeZone.getTimeZone("GMT"))
+            .addModule(new SimpleModule("SimpleModule", new Version(1, 0, 0, null, null, null))
+                .addSerializer(new MoneySerializer())
+            )
+            .build();
 
         properties.put("hibernate.type_contributors",
             (TypeContributorList) () -> Collections.singletonList(

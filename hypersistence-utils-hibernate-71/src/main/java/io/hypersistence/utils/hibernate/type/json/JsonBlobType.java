@@ -1,6 +1,6 @@
 package io.hypersistence.utils.hibernate.type.json;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import io.hypersistence.utils.hibernate.type.MutableDynamicParameterizedType;
 import io.hypersistence.utils.hibernate.type.json.internal.AbstractJsonJdbcTypeDescriptor;
 import io.hypersistence.utils.hibernate.type.json.internal.JsonBlobJdbcTypeDescriptor;

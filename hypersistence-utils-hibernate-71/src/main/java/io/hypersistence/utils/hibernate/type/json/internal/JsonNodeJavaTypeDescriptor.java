@@ -1,6 +1,6 @@
 package io.hypersistence.utils.hibernate.type.json.internal;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import io.hypersistence.utils.hibernate.type.util.ObjectMapperWrapper;
 import org.hibernate.SharedSessionContract;
 import org.hibernate.type.descriptor.WrapperOptions;
@@ -79,7 +79,7 @@ public class JsonNodeJavaTypeDescriptor
 
         @Override
         public Serializable disassemble(JsonNode value, SharedSessionContract session) {
-            return value != null ? value.deepCopy() : null;
+            return value != null ? (Serializable) value.deepCopy() : null;
         }
 
         @Override

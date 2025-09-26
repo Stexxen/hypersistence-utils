@@ -1,6 +1,6 @@
 package io.hypersistence.utils.hibernate.type.json;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import io.hypersistence.utils.hibernate.type.json.internal.JacksonUtil;
 import io.hypersistence.utils.hibernate.type.model.BaseEntity;
 import io.hypersistence.utils.hibernate.type.model.Location;

@@ -1,9 +1,9 @@
 package io.hypersistence.utils.hibernate.type.json;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import io.hypersistence.utils.hibernate.util.AbstractMySQLIntegrationTest;
 import jakarta.persistence.*;
 import io.hypersistence.utils.jdbc.validator.SQLStatementCountValidator;
@@ -11,6 +11,7 @@ import org.hibernate.Session;
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.Type;
 import org.junit.Test;
+import tools.jackson.databind.json.JsonMapper;
 
 import static org.junit.Assert.assertEquals;
 
@@ -37,7 +38,7 @@ public class MySQLJsonNodePropertyTest extends AbstractMySQLIntegrationTest {
                         .setIsbn("978-9730228236")
                         .setProperties(mapper.readTree("{\"field\": 0.05}"))
                 );
-            } catch (JsonProcessingException e) {
+            } catch (JacksonException e) {
                 throw new IllegalStateException(e);
             }
         });
@@ -98,8 +99,8 @@ public class MySQLJsonNodePropertyTest extends AbstractMySQLIntegrationTest {
     }
 
     private static ObjectMapper newMapper() {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS, true);
-        return mapper;
+        return JsonMapper.builder()
+                .configure(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS, true)
+            .build();
     }
 }

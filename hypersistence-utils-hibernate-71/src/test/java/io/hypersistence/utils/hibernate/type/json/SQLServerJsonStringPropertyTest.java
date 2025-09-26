@@ -1,6 +1,6 @@
 package io.hypersistence.utils.hibernate.type.json;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import io.hypersistence.utils.hibernate.util.AbstractSQLServerIntegrationTest;
 import io.hypersistence.utils.hibernate.util.JsonNodeUtil;
 import io.hypersistence.utils.jdbc.validator.SQLStatementCountValidator;

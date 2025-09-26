@@ -1,11 +1,13 @@
 package io.hypersistence.utils.hibernate.type.util;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.hibernate.HibernateException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.*;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.module.SimpleModule;
+import tools.jackson.databind.type.TypeFactory;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -25,13 +27,13 @@ import static java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME;
  */
 public class ObjectMapperWrapper implements Serializable {
 
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
-        .findAndRegisterModules()
-        .registerModule(
+    private static final ObjectMapper OBJECT_MAPPER = JsonMapper.builder()
+        .addModule(
             new SimpleModule()
                 .addSerializer(OffsetDateTime.class, OffsetDateTimeSerializer.INSTANCE)
                 .addDeserializer(OffsetDateTime.class, OffsetDateTimeDeserializer.INSTANCE)
-        );
+        )
+        .build();
 
     public static final ObjectMapperWrapper INSTANCE = new ObjectMapperWrapper();
 
@@ -74,7 +76,7 @@ public class ObjectMapperWrapper implements Serializable {
     public <T> T fromString(String string, Class<T> clazz) {
         try {
             return getObjectMapper().readValue(string, clazz);
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             throw new HibernateException(
                 new IllegalArgumentException("The given string value: " + string + " cannot be transformed to Json object", e)
             );
@@ -84,7 +86,7 @@ public class ObjectMapperWrapper implements Serializable {
     public <T> T fromString(String string, Type type) {
         try {
             return getObjectMapper().readValue(string, getObjectMapper().getTypeFactory().constructType(type));
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             throw new HibernateException(
                 new IllegalArgumentException("The given string value: " + string + " cannot be transformed to Json object", e)
             );
@@ -94,7 +96,7 @@ public class ObjectMapperWrapper implements Serializable {
     public <T> T fromBytes(byte[] value, Class<T> clazz) {
         try {
             return getObjectMapper().readValue(value, clazz);
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             throw new HibernateException(
                 new IllegalArgumentException("The given byte array cannot be transformed to Json object", e)
             );
@@ -104,7 +106,7 @@ public class ObjectMapperWrapper implements Serializable {
     public <T> T fromBytes(byte[] value, Type type) {
         try {
             return getObjectMapper().readValue(value, getObjectMapper().getTypeFactory().constructType(type));
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             throw new HibernateException(
                 new IllegalArgumentException("The given byte array cannot be transformed to Json object", e)
             );
@@ -114,7 +116,7 @@ public class ObjectMapperWrapper implements Serializable {
     public String toString(Object value) {
         try {
             return getObjectMapper().writeValueAsString(value);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new HibernateException(
                 new IllegalArgumentException("The given Json object value: " + value + " cannot be transformed to a String", e)
             );
@@ -124,7 +126,7 @@ public class ObjectMapperWrapper implements Serializable {
     public byte[] toBytes(Object value) {
         try {
             return getObjectMapper().writeValueAsBytes(value);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new HibernateException(
                 new IllegalArgumentException("The given Json object value: " + value + " cannot be transformed to a byte array", e)
             );
@@ -134,7 +136,7 @@ public class ObjectMapperWrapper implements Serializable {
     public JsonNode toJsonNode(String value) {
         try {
             return getObjectMapper().readTree(value);
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             throw new HibernateException(
                 new IllegalArgumentException(e)
             );
@@ -145,12 +147,16 @@ public class ObjectMapperWrapper implements Serializable {
         return jsonSerializer.clone(value);
     }
 
-    public static class OffsetDateTimeSerializer extends com.fasterxml.jackson.databind.JsonSerializer<OffsetDateTime> {
+  public TypeFactory getTypeFactory() {
+    return OBJECT_MAPPER.getTypeFactory();
+  }
+
+  public static class OffsetDateTimeSerializer extends ValueSerializer<OffsetDateTime> {
 
         public static final OffsetDateTimeSerializer INSTANCE = new OffsetDateTimeSerializer();
 
         @Override
-        public void serialize(OffsetDateTime offsetDateTime, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+        public void serialize(OffsetDateTime offsetDateTime, JsonGenerator jsonGenerator, SerializationContext context) throws JacksonException {
             if (offsetDateTime == null) {
                 jsonGenerator.writeNull();
             } else {
@@ -164,12 +170,12 @@ public class ObjectMapperWrapper implements Serializable {
         }
     }
 
-    public static class OffsetDateTimeDeserializer extends JsonDeserializer<OffsetDateTime> {
+    public static class OffsetDateTimeDeserializer extends ValueDeserializer<OffsetDateTime> {
 
         public static final OffsetDateTimeDeserializer INSTANCE = new OffsetDateTimeDeserializer();
 
         @Override
-        public OffsetDateTime deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+        public OffsetDateTime deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws JacksonException {
             if (jsonParser.getText() != null) {
                 try {
                     return OffsetDateTime.parse(jsonParser.getText(), ISO_OFFSET_DATE_TIME);

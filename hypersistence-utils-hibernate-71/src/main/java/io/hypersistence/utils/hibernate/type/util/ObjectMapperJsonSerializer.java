@@ -1,8 +1,7 @@
 package io.hypersistence.utils.hibernate.type.util;
 
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.type.TypeFactory;
+import tools.jackson.databind.JavaType;
+import tools.jackson.databind.JsonNode;
 import org.hibernate.internal.util.SerializationHelper;
 import org.hibernate.type.SerializationException;
 
@@ -30,7 +29,7 @@ public class ObjectMapperJsonSerializer implements JsonSerializer {
         } else if (object instanceof Collection) {
             Class commonElementType = findCommonElementType((Collection) object);
             if (commonElementType != null && !(Serializable.class.isAssignableFrom(commonElementType))) {
-                JavaType type = TypeFactory.defaultInstance()
+                JavaType type = objectMapperWrapper.getTypeFactory()
                     .constructParametricType(
                         object.getClass(),
                         commonElementType
@@ -49,7 +48,7 @@ public class ObjectMapperJsonSerializer implements JsonSerializer {
                         (isCommonKeyClassCoreOrNotSerializable || isCommonValueClassCoreOrNotSerializable)
                                 && (object.getClass().getTypeParameters().length == 2)
                 ) {
-                    JavaType type = TypeFactory.defaultInstance().constructParametricType(
+                    JavaType type = objectMapperWrapper.getTypeFactory().constructParametricType(
                         object.getClass(),
                         commonKeyClass,
                         commonValueClass

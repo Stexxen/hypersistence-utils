@@ -1,6 +1,6 @@
 package io.hypersistence.utils.hibernate.type.json.generic;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import io.hypersistence.utils.hibernate.type.json.JsonStringType;
 import io.hypersistence.utils.hibernate.type.json.JsonType;
 import io.hypersistence.utils.hibernate.util.AbstractPostgreSQLIntegrationTest;
